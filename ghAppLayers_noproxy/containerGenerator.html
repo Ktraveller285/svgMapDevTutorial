@@ -1,0 +1,392 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"></meta>
+<title>svgmapAppLayers githubpages container generator</title>
+</head>
+<style>
+#tbl {
+  width: 100%; /* テーブルを親要素の横幅いっぱいに広げる */
+  border-collapse: collapse; /* セルのボーダーを重ねて表示 */
+	font-size:11px;
+}
+
+#tbl th,
+#tbl td {
+  border: 1px solid #ccc; /* セルの境界線 */
+  padding: 8px; /* セルの内側の余白 */
+  word-break: break-all; /* 単語の途中で改行して折り返す */
+  max-width: 500px;
+}
+
+</style>
+<script>
+// Description: github.comの svgmap/svgmapAppLayers/Container.svgファイルから、同リポジトリのGitHub Pagesを直リンクして表示するためのコンテナを生成する
+// Programmed by Satoru Takagi
+// 
+// License: (MPL v2)
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+const baseURL="https://svgmap.github.io/svgmapAppLayers/";
+const conteinerPath ="./Container.svg";
+
+let sourceXMLDoc;
+
+addEventListener("load",async function(){
+	var srcTxt = await(await fetch(new URL(conteinerPath,baseURL))).text();
+	let layers = processSVG(srcTxt);
+	console.log(layers);
+	showTable(layers);
+	if(location.hash.indexOf("withoutProxy")>0){
+		uncheckCORSpxy();
+	}
+});
+
+function showTable(layers){
+	const tbl = document.getElementById("tbl");
+	let firstRec = true;
+	let keys;
+	for ( var i = layers.length-1 ; i >=0 ; i--){
+		rec = layers[i];
+		//console.log(rec);
+		if ( firstRec ){
+			keys = Object.keys(rec);
+			console.log(keys);
+			const ths = document.createElement("tr");
+			ths.insertAdjacentHTML("beforeend",`<th>使用する</th>`);
+			for ( const k of keys){
+				ths.insertAdjacentHTML("beforeend",`<th>${k}</th>`);
+			}
+			ths.insertAdjacentHTML("beforeend",`<th>note</th>`);
+			tbl.appendChild(ths);
+			firstRec = false;
+		}
+		let comment = "";
+		const tds = document.createElement("tr");
+		let ck="checked";
+		if ( rec["corsRestricted"]=="true"){
+			ck="";
+			comment+="クロスオリジンだと動作しません。";
+		}
+		if ( rec["corsProxyRequired"]=="true"){
+			//ck="";
+			comment+="CORSプロキシーが必要です。";
+		}
+		if (rec["href"] &&  /\{.*?\}/.test(rec["href"]) ){
+			ck="";
+			const regex = /\{(.*?)\}/g;
+			const matches = rec["href"].match(regex);
+			comment+="{"+decodeURIComponent(matches.map(match => match.substring(1, match.length - 1))) + "}を決定する必要があります。";
+		}
+		tds.insertAdjacentHTML("beforeend",`<td><input type="checkbox" id="anim_${i}" value="${i}" ${ck}></input></td>`);
+		for ( const k of keys){
+			tds.insertAdjacentHTML("beforeend",`<td>${rec[k]==null?"":decodeURIComponent(rec[k])}</td>`);
+		}
+		tds.insertAdjacentHTML("beforeend",`<td>${comment}</td>`);
+		tbl.appendChild(tds);
+	}
+}
+
+function procecss2SVG(layers){
+	const ans =[];
+	for ( let layer of layers){
+		var href = new URL(layer["xlink:href"], baseURL).href;
+		var cls = layer.class.split(" ");
+		var group="";
+		var clickable=null;
+		
+		for ( var cl of cls){
+			cl = cl.trim();
+			if ( cl=="clickable" ){
+				clickable = true;
+			} else if ( cl=="batch"){
+			} else if ( cl=="switch"){
+			} else if ( cl=="editable"){
+			} else {
+				group = cl;
+			}
+		}
+		var title = layer.title;
+		var controller = layer["data-controller"];
+		if (!controller){controller=null}
+		var corsRestricted = layer["data-cross-origin-restricted"];
+		var corsProxyRequired=layer["data-cross-origin-proxy-required"];
+		//console.log(group,href,title,controller,clickable,corsRestricted);
+		ans.push({group,href,title,controller,clickable,corsRestricted,corsProxyRequired});
+	}
+	return ans;
+}
+
+function processSVG(svgString) {
+	const parser = new DOMParser();
+	const xmlDoc = parser.parseFromString(svgString, "text/xml");
+	sourceXMLDoc = xmlDoc;
+	const animationElements = xmlDoc.querySelectorAll("animation");
+	const animationData = [];
+
+	animationElements.forEach(element => {
+		const data = {
+			"xlink:href": element.getAttributeNS("http://www.w3.org/1999/xlink", "href"),
+			"class": element.getAttribute("class"),
+			"title": element.getAttribute("title"),
+		};
+		const dataController = element.getAttribute("data-controller");
+		if (dataController) {
+			data["data-controller"] = dataController;
+		}
+		const corsRestricted = element.getAttribute("data-cross-origin-restricted");
+		if (corsRestricted) {
+			data["data-cross-origin-restricted"] = corsRestricted;
+		}
+		
+		const corsProxyRequired = element.getAttribute("data-cross-origin-proxy-required");
+		if (corsProxyRequired) {
+			data["data-cross-origin-proxy-required"] = corsProxyRequired;
+		}
+		
+		animationData.push(data);
+	});
+	return procecss2SVG(animationData);
+}
+
+function copyDocument(originalDoc){
+	var cpyRoot = originalDoc.documentElement.cloneNode(true);
+	var newDocument = document.implementation.createDocument(null, null);
+	var importedNode = newDocument.importNode(cpyRoot, true);
+	newDocument.appendChild(importedNode);
+	return newDocument;
+}
+
+function serializeAndFormatXML(xmlDoc) {
+//  const parser = new DOMParser();
+//  const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+	const serializer = new XMLSerializer();
+	// 整形オプション（インデント）を設定
+	const formattedXml = formatXML(serializer.serializeToString(xmlDoc));
+	return formattedXml;
+}
+
+function formatXML(xmlString, indentSize = 2) {
+  // XMLパーサーでパースして構造を検証
+  const parser = new DOMParser();
+  const xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+  
+  // パースエラーをチェック
+  const parserError = xmlDoc.querySelector('parsererror');
+  if (parserError) {
+    throw new Error('Invalid XML: ' + parserError.textContent);
+  }
+  
+  // 整形処理
+  const formatted = [];
+  let indent = 0;
+  const indentStr = ' '.repeat(indentSize);
+  
+  // 行分割して処理
+  const lines = xmlString.split('\n');
+  let inMultiLineComment = false;
+  
+  for (let line of lines) {
+    const trimmed = line.trim();
+    
+    // 空行は無視
+    if (!trimmed) continue;
+    
+    // 複数行コメントの処理
+    if (trimmed.startsWith('<!--')) {
+      if (trimmed.endsWith('-->')) {
+        // 単一行コメント
+        formatted.push(indentStr.repeat(indent) + trimmed);
+      } else {
+        // 複数行コメント開始
+        inMultiLineComment = true;
+        formatted.push(indentStr.repeat(indent) + trimmed);
+      }
+      continue;
+    }
+    
+    if (inMultiLineComment) {
+      if (trimmed.endsWith('-->')) {
+        // 複数行コメント終了
+        inMultiLineComment = false;
+        formatted.push(indentStr.repeat(indent) + trimmed);
+      } else {
+        // 複数行コメント継続
+        formatted.push(indentStr.repeat(indent) + trimmed);
+      }
+      continue;
+    }
+    
+    // XML宣言・DOCTYPE宣言の処理
+    if (trimmed.startsWith('<?') || trimmed.startsWith('<!DOCTYPE')) {
+      formatted.push(trimmed);
+      continue;
+    }
+    
+    // 行末にコメントがある場合の処理
+    let mainContent = trimmed;
+    let inlineComment = '';
+    
+    if (trimmed.includes('<!--') && trimmed.includes('-->')) {
+      const commentStart = trimmed.indexOf('<!--');
+      const commentEnd = trimmed.indexOf('-->') + 3;
+      
+      // コメントが行末にある場合
+      if (commentStart > 0) {
+        mainContent = trimmed.substring(0, commentStart).trim();
+        inlineComment = ' ' + trimmed.substring(commentStart, commentEnd);
+      }
+    }
+    
+    // 自己完結タグの処理
+    if (mainContent.endsWith('/>')) {
+      formatted.push(indentStr.repeat(indent) + mainContent + inlineComment);
+      continue;
+    }
+    
+    // 終了タグの処理
+    if (mainContent.startsWith('</')) {
+      indent--;
+      formatted.push(indentStr.repeat(indent) + mainContent + inlineComment);
+      continue;
+    }
+    
+    // 開始タグの処理
+    if (mainContent.startsWith('<')) {
+      formatted.push(indentStr.repeat(indent) + mainContent + inlineComment);
+      
+      // 開始タグかどうかを確認（コメントや宣言でない場合）
+      if (!mainContent.startsWith('<!--') && !mainContent.startsWith('<?') && !mainContent.startsWith('<!')) {
+        // タグ名を抽出してインデントを増やす
+        const tagMatch = mainContent.match(/^<([^\s>]+)/);
+        if (tagMatch) {
+          const tagName = tagMatch[1];
+          // 同じ行に終了タグがある場合や自己完結タグの場合はインデントを増やさない
+          if (!mainContent.includes(`</${tagName}>`) && !mainContent.endsWith('/>')) {
+            indent++;
+          }
+        }
+      }
+      continue;
+    }
+    
+    // テキストコンテンツの処理
+    if (mainContent) {
+      formatted.push(indentStr.repeat(indent) + mainContent + inlineComment);
+    }
+  }
+  
+  return formatted.join('\n');
+}
+
+function showContainer(saveAs){
+	const outputDoc = copyDocument(sourceXMLDoc);
+	getCheckedAnims(outputDoc);
+	const txt = serializeAndFormatXML(outputDoc);
+	if ( saveAs){
+		saveToFile(txt);
+	} else {
+		openInNewWindow(escapeHtml(txt));
+	}
+}
+
+function getCheckedAnims(doc){
+	var inps = tbl.getElementsByTagName("input");
+	console.log(inps);
+	let idxs = [];
+	for ( i = 0 ; i < inps.length ; i++){
+		const inp= inps[i];
+		const idx=Number(inp.getAttribute("value"));
+		if ( inp.checked){
+			idxs.push(idx);
+		} else {
+			console.log("excl:",idx);
+		}
+	};
+//	idxs = idxs.sort();
+	console.log(idxs);
+	const animationElements = doc.querySelectorAll("animation");
+	console.log("copy animationElements:",animationElements);
+	for ( var i = animationElements.length -1 ; i>=0 ; i--){
+		var anim = animationElements[i];
+		var href = new URL(anim.getAttribute("xlink:href"), baseURL).href;
+		anim.setAttribute("xlink:href",href);
+		if ( idxs.indexOf(i)>=0 ){
+		} else {
+			console.log("remove:",i,animationElements[i]);
+			animationElements[i].remove();
+		}
+	}
+}
+
+function saveToFile(text) {
+	const blob = new Blob([text], { type: 'text/plain' });
+	const url = URL.createObjectURL(blob);
+
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = 'Container.svg'; // ダウンロードするファイル名
+	a.click();
+
+	URL.revokeObjectURL(url);
+}
+
+function openInNewWindow(text) {
+	const newWindow = window.open('', '_blank', 'width=600,height=400');
+
+	newWindow.document.write('<!DOCTYPE html>');
+	newWindow.document.write('<html lang="ja"><head><title>文字列の表示</title></head><body>');
+	newWindow.document.write('<pre>' + text + '</pre>');
+	newWindow.document.write('</body></html>');
+	newWindow.document.close();
+}
+
+function escapeHtml(text) {
+	return text.replace(/&/g, '&amp;')
+	.replace(/</g, '&lt;')
+	.replace(/>/g, '&gt;')
+	.replace(/"/g, '&quot;')
+	.replace(/'/g, '&#039;');
+}
+
+function uncheckAll(){
+	var inps = tbl.getElementsByTagName("input");
+	for ( inp of inps){
+		inp.checked=false;
+	}
+}
+
+function uncheckCORSpxy(){
+	let idx = 0;
+	for ( elm of tbl.firstChild.children){
+		console.log(elm.innerText)
+		if (elm.innerText=="corsProxyRequired"){
+			break;
+		}
+		++idx;
+	}
+	
+	var inps = tbl.getElementsByTagName("input");
+	for ( inp of inps){
+		if (inp.parentElement.parentElement.children[idx].innerText=="true"){
+			inp.checked=false;
+		}
+	}
+}
+
+</script>
+<body>
+<h5><a href="https://github.com/svgmap/svgmapAppLayers" target="_blank" >githubのsvgmapのsvgmapAppLayers</a>リポジトリの<a href="https://svgmap.github.io/svgmapAppLayers/" target="_blank" >githubpages</a>を直接利用するためのコンテナsvgを生成</h5>
+
+<div>
+<input type="button" value="全部チェックを外す" onclick="uncheckAll()"></input>
+<input type="button" value="プロキシー必要レイヤのチェックを外す" onclick="uncheckCORSpxy()"></input>
+<input type="button" value="Container.svgを表示する" onclick="showContainer()"></input>
+<input type="button" value="Container.svgを保存する" onclick="showContainer(true)"></input>
+</div>
+<table id="tbl"></table>
+
+</body>
+</html>
