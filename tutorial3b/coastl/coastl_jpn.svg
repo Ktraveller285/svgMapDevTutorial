@@ -3,10 +3,10 @@
 <!--  参考データです -->
 <!-- Tramsform:[100.0,0.0,0.0,-100.0,0.0,0.0] -->
 <!-- 基準緯線:0.0 -->
-<!-- Bounds:ReferencedEnvelope[122.93349315824058 : 153.98686574791293, 20.42274033293598 : 45.557331092809534] -->
+<!-- Bounds:ReferencedEnvelope[122.93349315824058 : 153.98686574791293, 20.42274033293598 : 45.557331092809534] DefaultGeographicCRS[GCS_ITRF_1994] AXIS["Longitude", EAST] AXIS["Latitude", NORTH] -->
 <!-- TypeName:coastl_jpn -->
 <!-- Count:5 -->
-<!-- NS:http://www.opengis.net/gml:coastl_jpn -->
+<!-- NS:coastl_jpn -->
 <!-- Geom:GeometryDescriptorImpl the_geom <MultiLineString:MultiLineString> nillable 0:1 -->
 <!-- attrNo:0 Name:the_geom type:MultiLineString -->
 <!-- attrNo:1 Name:f_code type:String -->

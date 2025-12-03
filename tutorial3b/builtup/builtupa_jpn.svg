@@ -3,10 +3,10 @@
 <!--  参考データです -->
 <!-- Tramsform:[100.0,0.0,0.0,-100.0,0.0,0.0] -->
 <!-- 基準緯線:0.0 -->
-<!-- Bounds:ReferencedEnvelope[129.68186950683602 : 144.431503295898, 31.522132873535217 : 43.8102073669434] -->
+<!-- Bounds:ReferencedEnvelope[129.68186950683602 : 144.431503295898, 31.522132873535217 : 43.8102073669434] DefaultGeographicCRS[GCS_ITRF_1994] AXIS["Longitude", EAST] AXIS["Latitude", NORTH] -->
 <!-- TypeName:builtupa_jpn -->
 <!-- Count:6 -->
-<!-- NS:http://www.opengis.net/gml:builtupa_jpn -->
+<!-- NS:builtupa_jpn -->
 <!-- Geom:GeometryDescriptorImpl the_geom <MultiPolygon:MultiPolygon> nillable 0:1 -->
 <!-- attrNo:0 Name:the_geom type:MultiPolygon -->
 <!-- attrNo:1 Name:f_code type:String -->
@@ -34,8 +34,6 @@
 <globalCoordinateSystem srsName="http://purl.org/crs/84" transform="matrix(100.0,0.0,0.0,-100.0,0.0,0.0)" />
 <!-- Total:221 records. -->
 <!-- LEVEL: 0 -->
-<animation xlink:href="builtupa_jpn_0-0.svg" x="9000" y="-4500" width="4500" height="4500" visibleMinZoom="8.88"/>
-<image xlink:href="builtupa_jpn/lvl3/tile0_0.png" preserveAspectRatio="none" x="9000" y="-4500" width="4500" height="4500" visibleMaxZoom="8.88"/>
-<animation xlink:href="builtupa_jpn_1-0.svg" x="13500" y="-4500" width="4500" height="4500" visibleMinZoom="8.88"/>
-<image xlink:href="builtupa_jpn/lvl3/tile1_0.png" preserveAspectRatio="none" x="13500" y="-4500" width="4500" height="4500" visibleMaxZoom="8.88"/>
+<animation xlink:href="builtupa_jpn_0-0.svg" x="9000" y="-4500" width="4500" height="4500"/>
+<animation xlink:href="builtupa_jpn_1-0.svg" x="13500" y="-4500" width="4500" height="4500"/>
 </svg>

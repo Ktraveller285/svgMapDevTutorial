@@ -3,10 +3,10 @@
 <!--  参考データです -->
 <!-- Tramsform:[100.0,0.0,0.0,-100.0,0.0,0.0] -->
 <!-- 基準緯線:0.0 -->
-<!-- Bounds:ReferencedEnvelope[122.9433898929293 : 148.8223571779415, 24.049842834179515 : 45.52280044528436] -->
+<!-- Bounds:ReferencedEnvelope[122.9433898929293 : 148.8223571779415, 24.049842834179515 : 45.52280044528436] DefaultGeographicCRS[JGD2000] AXIS["Longitude", EAST] AXIS["Latitude", NORTH] -->
 <!-- TypeName:roadl_jpn -->
 <!-- Count:10 -->
-<!-- NS:http://www.opengis.net/gml:roadl_jpn -->
+<!-- NS:roadl_jpn -->
 <!-- Geom:GeometryDescriptorImpl the_geom <MultiLineString:MultiLineString> nillable 0:1 -->
 <!-- attrNo:0 Name:the_geom type:MultiLineString -->
 <!-- attrNo:1 Name:f_code type:String -->
