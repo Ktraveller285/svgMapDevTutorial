@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="120,-50,30,30">
+ <globalCoordinateSystem srsName="http://purl.org/crs/84" transform="matrix(1,0,0,-1,0,0)"/>
+
+
+ <image xlink:href="https://www.gebco.net/data_and_products/gebco_web_services/web_map_service/mapserv?request=GetMap&amp;service=WMS&amp;version=1.1.1&amp;layers=GEBCO_LATEST&amp;srs=EPSG%3A4326&amp;bbox=120,20,150,50&amp;width=600&amp;height=600&amp;format=image%2Fpng" x="120" y="-50" width="30" height="30" preserveAspectRatio="none" title="image" opacity="0.5" />
+
+
+</svg>
