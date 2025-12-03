@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:go="http://purl.org/svgmap/profile" viewBox="123 -46 22 22" >
+
+<globalCoordinateSystem srsName="http://purl.org/crs/84" transform="matrix(1.0,0.0,0.0,-1.0,0.0,0.0)" />
+
+<!-- OpenStreetMap用SVGファイルを表示状態として読み込む -->
+<animation x="-300" y="-300" width="600" height="600" xlink:href="dynamicOSM_r11.svg" title="OpenStreetMap(Global)" class="basemap switch" visibility="visible"/>
+</svg>
